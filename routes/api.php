@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class)->except(['store']);
 
     // 2. RUTA DE BOOKMARKS
+    Route::post('bookmarks/reorder', [BookmarkController::class, 'reorder']);
     Route::get('admin/bookmarks', [BookmarkController::class, 'allBookmarksAdmin']);
     // Usamos apiResource para tener index, store, show, update y destroy en una sola línea
     Route::apiResource('bookmarks', BookmarkController::class);

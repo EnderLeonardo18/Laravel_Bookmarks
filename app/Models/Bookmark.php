@@ -13,11 +13,26 @@ class Bookmark extends Model
         'description',
         'image_preview',
         'category',
-        'user_id'
+        'user_id',
+        'status',
+        'progress_note',
+        'progress_url',
+        'order'
+
     ];
 
     // Relación inversa: Un marcador pertenece a un usuario
     public function user(): BelongsTo {
         return $this->belongsTo(User::class);
+    }
+
+
+    protected static function booted(){
+        static::creating(function ($bookmark){
+            if(is_null($bookmark->order)) {
+                $maxOrder = static::where('user_id', $bookmark->user_id)->max('order');
+                $bookmark->order = $maxOrder + 1;
+            }
+        });
     }
 }

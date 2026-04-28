@@ -17,7 +17,10 @@ class BookmarkController extends Controller
         // FILTRO DE PRIVACIDAD: Solo los del usuario autenticado
         // Al usar $request->user(), la extensión suele reconocerlo mejor.
         // Esto garantiza que el Usuario A nunca vea los de B
-        $bookmarks = $request->user()->bookmarks()->latest()->get();
+        $bookmarks = $request->user()
+        ->bookmarks()
+        ->orderBy('order', 'asc')  // Cambio importante
+        ->get();
         return response()->json($bookmarks);
     }
 
@@ -59,6 +62,39 @@ class BookmarkController extends Controller
 
 
 
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'ordered_ids' => 'required|array',
+            'ordered_ids.*' => 'exists:bookmarks,id'
+        ]);
+
+        $user = $request->user();
+        if (!$user) {
+            abort(401, 'No autenticado');
+        }
+
+        $isAdmin = $user->isAdmin();  // ✅ Método definido en User
+        $userId = $user->id;          // ✅ Obtenemos el ID directamente
+
+        foreach ($request->ordered_ids as $index => $id) {
+            $bookmark = Bookmark::find($id);
+            if (!$bookmark) {
+                continue; // Si no existe, saltamos
+            }
+
+            if ($isAdmin || $bookmark->user_id === $userId) {
+                $bookmark->update(['order' => $index]);
+            } else {
+                abort(403, 'No autorizado para reordenar el marcador ID: ' . $id);
+            }
+        }
+
+        return response()->json(['message' => 'Orden actualizado correctamente']);
+    }
+
+
+
 
 
     /**
@@ -73,9 +109,13 @@ class BookmarkController extends Controller
     }
 
 
-    public function allBookmarksAdmin(){
+    public function allBookmarksAdmin()
+    {
         // Usamos with('user') para que Angular reciba también el nombre del dueño
-        return response()->json(Bookmark::with('user')->latest()->get());
+        $bookmarks = Bookmark::with('user')
+        ->orderBy('order', 'asc')
+        ->get();
+        return response()->json($bookmarks);
     }
 
 }

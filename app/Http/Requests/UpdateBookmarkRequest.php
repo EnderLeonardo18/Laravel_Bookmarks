@@ -26,7 +26,10 @@ class UpdateBookmarkRequest extends FormRequest
                 'url'         => 'required|url',
                 'category'    => 'required|string',
                 'description' => 'nullable|string|max:500',
-                'image_preview' => 'nullable|url'
+                'image_preview' => 'nullable|url',
+                'status' => 'required|string|max:50', // En Angular limitaremos las opciones
+                'progress_note' => 'nullable|string|max:255',
+                'progress_url' => 'nullable|url', // Validamos que sea un link real si se envía
             ];
     }
 }

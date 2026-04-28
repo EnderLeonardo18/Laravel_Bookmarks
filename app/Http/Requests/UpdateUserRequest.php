@@ -41,7 +41,7 @@ class UpdateUserRequest extends FormRequest
             'last_name'  => 'required|string|max:255',
             // El ID al final es para que no de error de "ya existe" al editar tu propio usuario
             'username'   => 'required|string|max:50|unique:users,username,' .$this->user->id,
-            'email' => 'required|email|unique:users,email, '  .$this->user->id,
+            'email' => 'required|email|unique:users,email,'  .$this->user->id,
             'role'       => ['required', new Enum(UserRole::class)],
             'password' => 'nullable|min:8|confirmed', // Nullable para no obligar a cambiarla
         ];
