@@ -25,7 +25,7 @@ class UpdateBookmarkRequest extends FormRequest
                 'title'       => 'required|string|max:255',
                 'url'         => 'required|url',
                 'category'    => 'required|string',
-                'description' => 'nullable|string|max:500',
+                'description' => 'nullable|string|max:2000',
                 'image_preview' => 'nullable|url',
                 'status' => 'required|string|max:50', // En Angular limitaremos las opciones
                 'progress_note' => 'nullable|string|max:255',
