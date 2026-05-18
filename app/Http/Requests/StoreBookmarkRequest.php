@@ -26,7 +26,7 @@ class StoreBookmarkRequest extends FormRequest
             'url' => 'required|url',
             'category' => 'required|string',
             'description' => 'required|string|max:2000',
-            'image_preview' => 'nullable|url'  // Permite que el link de la imagen sea opcional
+            'image_preview' => 'nullable|url|max:2000'  // Permite que el link de la imagen sea opcional
         ];
     }
 }

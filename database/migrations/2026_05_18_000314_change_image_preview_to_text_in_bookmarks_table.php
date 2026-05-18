@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bookmarks', function (Blueprint $table) {
-            // Usamos ->change() para modificar la columna existente
-            $table->text('description')->nullable()->change();
+            // Cambiamos de string (255) a text (65,535)
+            $table->text('image_preview')->nullable()->change();
         });
     }
 
@@ -23,7 +23,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('bookmarks', function (Blueprint $table) {
-            // Por si necesitas volver atrás
             $table->string('image_preview')->nullable()->change();
         });
     }
