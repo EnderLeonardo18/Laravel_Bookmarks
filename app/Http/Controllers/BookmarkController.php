@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBookmarkRequest;
 use App\Http\Requests\UpdateBookmarkRequest;
 use App\Models\Bookmark;
+use App\Services\EpisodeCheckerService;
 use Embed\Embed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -109,6 +110,7 @@ class BookmarkController extends Controller
     }
 
 
+    // Metodo que llama todos los marcadores en modo Admin
     public function allBookmarksAdmin()
     {
         // Usamos with('user') para que Angular reciba también el nombre del dueño
@@ -117,5 +119,49 @@ class BookmarkController extends Controller
         ->get();
         return response()->json($bookmarks);
     }
+
+
+    public function checkEpisodes(int $id, EpisodeCheckerService $checker)
+{
+    try {
+        $bookmark = Bookmark::findOrFail($id);
+
+        // 1. PRIORIDAD: Si tiene 'progress_url' (Episodio actual), usa ese. Si no, usa 'url'.
+        $primaryUrl = !empty($bookmark->progress_url) ? $bookmark->progress_url : $bookmark->url;
+
+        // 2. Garantizar que las URLs alternativas sean un array válido
+        $alternativeUrls = $bookmark->alternative_urls;
+        if (is_string($alternativeUrls)) {
+            $alternativeUrls = json_decode($alternativeUrls, true) ?? [];
+        }
+        if (!is_array($alternativeUrls)) {
+            $alternativeUrls = [];
+        }
+
+        // 3. Ejecutar la comprobación para TODOS los links (Principal + Alternativos)
+        $results = $checker->checkBookmarkLinks($primaryUrl, $alternativeUrls);
+
+        // 4. Evaluación del resultado
+        $hasNewChapter = collect($results)->contains('has_next', true);
+
+        // 🔴 ESTA ERA LA LÍNEA FALTANTE: Guardar el nuevo estado en la base de datos
+        $bookmark->update([
+            'has_new_episode' => $hasNewChapter
+        ]);
+
+        return response()->json([
+            'bookmark_id'     => $bookmark->id,
+            'has_new_episode' => $hasNewChapter,
+            'checks'          => $results
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error'   => 'Error al procesar la solicitud',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
 
 }

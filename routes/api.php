@@ -46,4 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Usamos apiResource para tener index, store, show, update y destroy en una sola línea
     Route::apiResource('bookmarks', BookmarkController::class);
 
+    Route::get('/bookmarks/{bookmark}/check-episodes', [BookmarkController::class, 'checkEpisodes'])
+    ->middleware('auth:sanctum');
+
 });

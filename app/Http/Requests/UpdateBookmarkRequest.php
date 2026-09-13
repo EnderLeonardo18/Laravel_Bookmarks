@@ -22,14 +22,18 @@ class UpdateBookmarkRequest extends FormRequest
     public function rules(): array
     {
         return [
-                'title'       => 'required|string|max:255',
-                'url'         => 'required|url',
-                'category'    => 'required|string',
-                'description' => 'nullable|string|max:2000',
-                'image_preview' => 'nullable|url|max:2000',
-                'status' => 'required|string|max:50', // En Angular limitaremos las opciones
-                'progress_note' => 'nullable|string|max:255',
-                'progress_url' => 'nullable|url', // Validamos que sea un link real si se envía
-            ];
+            'title'            => ['required', 'string', 'max:255'],
+            'url'              => ['required', 'url'],
+            'category'         => ['required', 'string'],
+            'description'      => ['nullable', 'string', 'max:2000'],
+            'image_preview'    => ['nullable', 'url', 'max:2000'],
+            'status'           => ['required', 'string', 'max:50'],
+            'progress_note'    => ['nullable', 'string', 'max:255'],
+            'progress_url'     => ['nullable', 'url'],
+
+            // Reglas para los links alternativos en la edición
+            'alternative_urls'   => ['nullable', 'array'],
+            'alternative_urls.*' => ['required', 'url', 'max:2000'],
+        ];
     }
 }
